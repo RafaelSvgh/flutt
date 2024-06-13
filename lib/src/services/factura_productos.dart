@@ -7,7 +7,7 @@ Future<void>? facturaProducto(List<ProductoCarrito> productos, int id) async {
         productos.map((producto) => producto.toJson()).toList();
 
     Response response = await Dio()
-        .post('http://10.0.2.2:8000/api/factura/$id', data: productosJson);
+        .post('http://3.88.182.80/api/factura/$id', data: productosJson);
 
     if (response.statusCode == 200) {
       print("posi");

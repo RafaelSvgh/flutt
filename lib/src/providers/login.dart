@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<List<String>?> login(String email, String password) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8000/api/login'),
+    Uri.parse('http://3.88.182.80/api/login'),
     body: {'email': email, 'password': password},
   );
   if (response.statusCode == 200) {
@@ -23,6 +23,10 @@ Future<List<String>?> login(String email, String password) async {
     } else {
       usuario.add('promotor');
     }
+    usuario.add(mapa['nit'].toString());
+    usuario.add(mapa['puntos'].toString());
+    usuario.add(mapa['direccion']);
+    usuario.add(mapa['telefono'].toString());
     return usuario;
   } else {
     return null;

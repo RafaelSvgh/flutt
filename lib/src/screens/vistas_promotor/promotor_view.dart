@@ -53,7 +53,7 @@ class PromotorViewState extends ConsumerState<PromotorView> {
 
   Future<void> getFamilias() async {
     try {
-      final response = await Dio().get('http://10.0.2.2:8000/api/familias');
+      final response = await Dio().get('http://3.88.182.80/api/familias');
       setState(() {
         familias = Familias.fromJsonList(response.data);
       });
@@ -63,7 +63,7 @@ class PromotorViewState extends ConsumerState<PromotorView> {
 
   Future<void> getCategorias() async {
     try {
-      final response = await Dio().get('http://10.0.2.2:8000/api/categorias');
+      final response = await Dio().get('http://3.88.182.80/api/categorias');
       setState(() {
         categorias = Categorias.fromJsonList(response.data);
       });
@@ -73,7 +73,7 @@ class PromotorViewState extends ConsumerState<PromotorView> {
 
   Future<void> getProductos() async {
     try {
-      final response = await Dio().get('http://10.0.2.2:8000/api/productos');
+      final response = await Dio().get('http://3.88.182.80/api/productos');
       setState(() {
         productos = Productos.fromJsonList(response.data);
       });
@@ -83,7 +83,7 @@ class PromotorViewState extends ConsumerState<PromotorView> {
 
   Future<Productos?> getProductosCategoria(int id) async {
     final response =
-        await Dio().get('http://10.0.2.2:8000/api/productos-categoria/$id');
+        await Dio().get('http://3.88.182.80/api/productos-categoria/$id');
     final prodsCategoria = Productos?.fromJsonList(response.data);
     return prodsCategoria;
   }
@@ -98,7 +98,7 @@ class PromotorViewState extends ConsumerState<PromotorView> {
 
     final pages = [
       PromotorView(usuario: widget.usuario),
-      const PerfilPagePromotor(),
+      PerfilPagePromotor(usuario: widget.usuario),
       const ProductsPagePromotor(),
       const ReportPagePromotor(),
       const HistoryPagePromotor(),
@@ -161,13 +161,13 @@ class PromotorViewState extends ConsumerState<PromotorView> {
             UserAccountsDrawerHeader(
               accountName: Text(widget.usuario[1]),
               accountEmail: Text(widget.usuario[2]),
-              currentAccountPicture: CircleAvatar(
+              currentAccountPicture: const CircleAvatar(
                 child: ClipOval(
-                  child: Image.network(
-                    "https://pbs.twimg.com/media/E6Rc-cmXIAgVcma.jpg",
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                    child: Icon(
+                  Icons.person_pin,
+                  size: 70.0,
+                  color: Colors.blue,
+                )),
               ),
               decoration: const BoxDecoration(color: Colors.indigoAccent),
             ),
@@ -342,47 +342,6 @@ class PromotorViewState extends ConsumerState<PromotorView> {
                           fontSize: 20.0, fontWeight: FontWeight.w500),
                     ),
                   ),
-
-                  CupertinoButton(
-                    onPressed: () {
-                      showCupertinoModalPopup<void>(
-                        context: context,
-                        builder: (BuildContext context) => CupertinoAlertDialog(
-                          title: const Text('Felicidades'),
-                          content: const Text('Ganaste 180 puntos de promotor'),
-                          actions: <CupertinoDialogAction>[
-                            CupertinoDialogAction(
-                              /// This parameter indicates this action is the default,
-                              /// and turns the action's text to bold text.
-                              isDefaultAction: true,
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: 270,
-                                    margin: const EdgeInsets.only(bottom: 15.0),
-                                    child: Image.network(
-                                        "https://lordicon.com/icons/wired/flat/1103-confetti.gif"),
-                                  ),
-                                  const Text('Perfecto')
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    child: const Text('Hola'),
-                  )
-                  // TextButton(
-                  //   onPressed: () { },
-                  //   child: const Text(
-                  //     'Ver más',
-                  //   ),
-                  // ),
                 ],
               ),
               _Cards(productos, context, _incrementar),
@@ -444,7 +403,7 @@ Widget _Cards(
 }
 
 Future<Producto> getProducto(int id) async {
-  final response = await Dio().get('http://10.0.2.2:8000/api/producto/$id');
+  final response = await Dio().get('http://3.88.182.80/api/producto/$id');
   final producto = Producto?.fromJson(response.data);
   return producto;
 }

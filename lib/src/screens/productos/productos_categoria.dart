@@ -14,7 +14,7 @@ class ProductosCategoriaPage extends StatefulWidget {
 }
 
 Future<Producto> getProducto(int id) async {
-  final response = await Dio().get('http://10.0.2.2:8000/api/producto/$id');
+  final response = await Dio().get('http://3.88.182.80/api/producto/$id');
   final producto = Producto?.fromJson(response.data);
   return producto;
 }

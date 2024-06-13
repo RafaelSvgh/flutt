@@ -21,7 +21,7 @@ class _FamiliasPageState extends State<FamiliasPage> {
 
   Future<void> getFamilias() async {
     try {
-      final response = await Dio().get('http://10.0.2.2:8000/api/familias');
+      final response = await Dio().get('http://3.88.182.80/api/familias');
       setState(() {
         familias = Familias.fromJsonList(response.data);
       });

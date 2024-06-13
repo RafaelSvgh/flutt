@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 Future<void>? actualizarPuntos(int id, double puntos) async {
   try {
     Response response = await Dio().put(
-      'http://10.0.2.2:8000/api/promotor/$id',
+      'http://3.88.182.80/api/promotor/$id',
       data: {'puntos': puntos},
     );
 

@@ -7,7 +7,8 @@ Future<String> pdfFactura(List<ProductoCarrito> productos, int id) async {
         productos.map((producto) => producto.toJson()).toList();
 
     final response = await Dio()
-        .get('http://10.0.2.2:8000/api/pdf-factura/$id', data: productosJson);
+        // .get('http://10.0.2.2:8000/api/pdf-factura/$id', data: productosJson);
+        .get('http://3.88.182.80/api/pdf-factura/$id', data: productosJson);
 
     if (response.statusCode == 200) {
       print(response.data);
