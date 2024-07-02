@@ -59,6 +59,7 @@ class PaymentController extends GetxController {
           colorText: Colors.white,
           margin: const EdgeInsets.all(10),
           duration: const Duration(seconds: 2));
+      // ignore: deprecated_member_use
       launch(ruta);
     } on Exception catch (e) {
       if (e is StripeException) {

@@ -13,14 +13,10 @@ import 'package:flutt/src/screens/vistas_promotor/vistas_secundarias/history_pag
 import 'package:flutt/src/screens/vistas_promotor/vistas_secundarias/perfil_page.dart';
 import 'package:flutt/src/screens/vistas_promotor/vistas_secundarias/products_page.dart';
 import 'package:flutt/src/screens/vistas_promotor/vistas_secundarias/reportes_page.dart';
-import 'package:flutt/src/services/actualizar_puntos.dart';
-import 'package:flutt/src/services/factura_productos.dart';
 import 'package:flutt/src/services/pdf_factura.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class PromotorView extends ConsumerStatefulWidget {
   final List<String> usuario;
@@ -35,12 +31,14 @@ class PromotorViewState extends ConsumerState<PromotorView> {
   Categorias? categorias;
   Productos? productos;
   int selectedIndex = 2;
+  double monto = 0.0;
   @override
   void initState() {
     super.initState();
     getFamilias();
     getCategorias();
     getProductos();
+    getMontoComprado();
   }
 
   void _contadorInc() {
@@ -49,6 +47,17 @@ class PromotorViewState extends ConsumerState<PromotorView> {
 
   void _incrementar() {
     _contadorInc();
+  }
+
+  Future<void> getMontoComprado() async {
+    try {
+      final response = await Dio().get(
+          'http://3.88.182.80/api/prom-compras/${int.parse(widget.usuario[0])}');
+      setState(() {
+        monto = double.parse(response.data.toString());
+      });
+      // ignore: empty_catches
+    } catch (error) {}
   }
 
   Future<void> getFamilias() async {
@@ -92,16 +101,27 @@ class PromotorViewState extends ConsumerState<PromotorView> {
   Widget build(BuildContext context) {
     final contador = ref.watch(contadorProvider);
     final carrito = ref.watch(carritoStateNotifierProvider);
-    final terminado = ref.watch(terminadoProvider);
-    final link = ref.watch(facturaProvider);
     final PaymentController paymentController = Get.put(PaymentController());
+    String rango = 'inicial';
+    if (monto >= 25000) {
+      rango = 'principiante';
+    }
+    if (monto >= 55000) {
+      rango = 'intermedio';
+    }
+    if (monto >= 85000) {
+      rango = 'avanzado';
+    }
+    if (monto >= 200000) {
+      rango = 'experto';
+    }
 
     final pages = [
       PromotorView(usuario: widget.usuario),
       PerfilPagePromotor(usuario: widget.usuario),
       const ProductsPagePromotor(),
       const ReportPagePromotor(),
-      const HistoryPagePromotor(),
+      HistoryPagePromotor(id: int.parse(widget.usuario[0])),
       const LoginPage()
     ];
     return SafeArea(
@@ -344,7 +364,7 @@ class PromotorViewState extends ConsumerState<PromotorView> {
                   ),
                 ],
               ),
-              _Cards(productos, context, _incrementar),
+              _Cards(productos, context, _incrementar, rango),
               const SizedBox(
                 height: 20.0,
               ),
@@ -356,7 +376,7 @@ class PromotorViewState extends ConsumerState<PromotorView> {
                   style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),
                 ),
               ),
-              _Cards(productos, context, _incrementar),
+              _Cards(productos, context, _incrementar, rango),
               IconButton(
                   onPressed: () async {
                     await pdfFactura(carrito, int.parse(widget.usuario[0]));
@@ -370,8 +390,8 @@ class PromotorViewState extends ConsumerState<PromotorView> {
   }
 }
 
-Widget _Cards(
-    Productos? lista, BuildContext context, VoidCallback _incrementar) {
+Widget _Cards(Productos? lista, BuildContext context, VoidCallback _incrementar,
+    String rango) {
   return Container(
     height: 290,
     child: ListView(
@@ -396,7 +416,8 @@ Widget _Cards(
                 producto.puntos,
                 producto.imagen,
                 context,
-                _incrementar),
+                _incrementar,
+                rango),
           );
         }).toList()),
   );
@@ -408,8 +429,30 @@ Future<Producto> getProducto(int id) async {
   return producto;
 }
 
-Widget _card(int id, String nombre, int stock, String precio, String puntos,
-    String imagen, BuildContext context, VoidCallback _incrementar) {
+Widget _card(
+    int id,
+    String nombre,
+    int stock,
+    String precio,
+    String puntos,
+    String imagen,
+    BuildContext context,
+    VoidCallback _incrementar,
+    String rango) {
+  double precioDescuento = double.parse(precio);
+  if (rango == 'principiante') {
+    precioDescuento = double.parse(precio) * 0.9;
+  }
+  if (rango == 'intermedio') {
+    precioDescuento = double.parse(precio) * 0.85;
+  }
+  if (rango == 'avanzado') {
+    precioDescuento = double.parse(precio) * 0.80;
+  }
+  if (rango == 'experto') {
+    precioDescuento = double.parse(precio) * 0.75;
+  }
+
   return Column(
     mainAxisAlignment: MainAxisAlignment.start,
     children: [
@@ -444,7 +487,7 @@ Widget _card(int id, String nombre, int stock, String precio, String puntos,
           Container(
             margin: const EdgeInsets.only(left: 20.0),
             child: Text(
-              'Bs $precio',
+              'Bs ' + precioDescuento.toStringAsFixed(2),
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
@@ -460,7 +503,7 @@ Widget _card(int id, String nombre, int stock, String precio, String puntos,
                         imagen,
                         nombre,
                         1,
-                        double.parse(precio),
+                        double.parse(precioDescuento.toStringAsFixed(2)),
                         double.parse(puntos));
                     final carrito = ref.watch(carritoStateNotifierProvider);
                     ref
